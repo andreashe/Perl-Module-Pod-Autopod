@@ -1,0 +1,122 @@
+use Getopt::Long;
+use Pod::Text;
+
+use Pod::Autopod;
+
+
+
+my $options={};
+
+GetOptions(	$options,	
+						"help|h" 			=> \&help,
+						"readfile|r=s",
+						"writefile|w=s",
+						"version|v"		=> \&version,
+						"print|p",
+						);
+
+            
+
+if ($options->{'readfile'} && !$options->{'writefile'} && !$options->{'print'}){$options->{'writefile'} = $options->{'readfile'}};
+
+if (!$options->{'readfile'} && !$options->{'writefile'}){&help};
+
+            
+
+
+my $ap = new Pod::Autopod(readfile=>$options->{'readfile'}, writefile=>$options->{'writefile'});
+
+
+if ($options->{'print'}){
+	print $ap->getPod();
+}
+
+
+sub help{
+
+	my $parser=new Pod::Text;
+	$parser->parse_from_file($0);
+
+	exit;
+
+
+}
+
+
+sub version{
+	print $Pod::Autopod::VERSION;
+	exit;
+}
+
+
+
+
+
+
+
+
+
+
+
+=pod
+ 
+=head1 NAME
+
+autopod - using the Perl library Pod::Autopod to generate javadoc like documentation with pod syntax. It is designed to understand perl code in class style, so typically PM files.
+
+=head1 SYNOPSIS
+
+autopod [F<OPTIONS>] 
+
+=head1 OPTIONS
+
+The following options may be used:
+
+=over 18
+
+
+=item B<--help>
+
+Prints this help.
+
+
+=item B<--readfile | r>
+
+Perl module to be parsed for building a pod.
+
+
+=item B<--writefile | w>
+
+Output file to write the pod.
+
+If this filename has a "pm" extension, it also writes the perl code which was read from the origin.
+
+If this filename has a "pod" extension or any other, it only writes the pod content.
+
+If there is no --writefile used and no --print, it overwrites the file set via --readfile.
+
+My personal warning: as long this is a new software, better backup your pm file before overwriting it directly.
+
+=item B<--print | -p>
+
+Instead of writing to a file, you can print to STDOUT the generated pod file.
+
+	e.g.: autopod -r Foo/Bar.pm -p 
+
+	You may combine this line to pipe to further applications.
+
+	e.g.: autopod -r Foo/Bar.pm -p | pod2text 
+ 
+
+=item B<--version | -v>
+
+Prints the version of Pod::Autopod.
+
+licence is LGPL
+
+by Andreas Hernitscheck ahernit@cpan.org 
+
+
+=back
+
+
