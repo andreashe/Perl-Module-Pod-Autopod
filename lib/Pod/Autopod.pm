@@ -9,7 +9,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 
 
 use vars qw($VERSION);
-$VERSION = '1.05';
+$VERSION = '1.06';
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
