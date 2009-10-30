@@ -1,4 +1,5 @@
-#!/usr/bin/perl
+use lib 'libs/cpan';
+use lib 'libs/ext';
 
 use Getopt::Long;
 use Pod::Text;
@@ -15,21 +16,46 @@ GetOptions(	$options,
 						"writefile|w=s",
 						"version|v"		=> \&version,
 						"print|p",
+						"readdir|d=s",
+						"update|u",
+						"verbose",
+						"pod",
 						);
 
             
 
-if ($options->{'readfile'} && !$options->{'writefile'} && !$options->{'print'}){$options->{'writefile'} = $options->{'readfile'}};
+if ($options->{'readfile'} && !$options->{'writefile'} && !$options->{'print'}){
+	$options->{'writefile'} = $options->{'readfile'};
+};
 
-if (!$options->{'readfile'} && !$options->{'writefile'}){&help};
+
+if (!$options->{'readfile'} && !$options->{'writefile'} && !$options->{'readdir'}){&help};
 
             
 
 
-my $ap = new Pod::Autopod(readfile=>$options->{'readfile'}, writefile=>$options->{'writefile'});
+my $ap = new Pod::Autopod();
+
+if ($options->{'readfile'}){ ## single files
+	$ap->readFile($options->{'readfile'});
+	$ap->writeFile($options->{'writefile'});
+}
 
 
-if ($options->{'print'}){
+
+if ($options->{'readdir'}){ ## multiple files
+
+	my $work = {	updateonly	=>	$options->{'update'},
+								pod					=>	$options->{'pod'},
+								verbose			=>	$options->{'verbose'},
+							};
+
+	$ap->readDirectory($options->{'readdir'},%$work);
+}
+
+
+
+if (($ap) && ($options->{'print'})){ ## for multiple files, it will print the last
 	print $ap->getPod();
 }
 
@@ -109,6 +135,28 @@ Instead of writing to a file, you can print to STDOUT the generated pod file.
 
 	e.g.: autopod -r Foo/Bar.pm -p | pod2text 
  
+ 
+	Do not use it in combination with readdir.
+	
+=item B<--readdir | -d>
+
+Scans a directory recursiv for pm files and generates the pod for them.
+	
+=item B<--update | -u>
+
+In combination with --readdir it updates only files which have been pod'ed with autopod in the past.
+An alternative is to write somewhere in the pm file the magic word "AUTOPODME".
+
+=item B<--pod>
+
+In combination with --readdir it writes separat pod files instead of updating the original pm files.
+So far the will be parallel to the pm file.
+	
+=item B<--verbose>
+
+In combination with --readdir it prints the filenames which are written.
+
+	autopod.pl -d mylibs -u -verbose
 
 =item B<--version | -v>
 
@@ -116,7 +164,7 @@ Prints the version of Pod::Autopod.
 
 licence is LGPL
 
-by Andreas Hernitscheck ahernit@cpan.org 
+by Andreas Hernitscheck ahernit(AT)cpan.org 
 
 
 =back
