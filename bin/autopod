@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 use lib 'libs/cpan';
 use lib 'libs/ext';
 
@@ -5,7 +7,7 @@ use Getopt::Long;
 use Pod::Text;
 
 use Pod::Autopod;
-
+use strict;
 
 
 my $options={};
@@ -73,6 +75,7 @@ sub help{
 
 sub version{
 	print $Pod::Autopod::VERSION;
+	print "\n";
 	exit;
 }
 
@@ -83,7 +86,7 @@ sub version{
 
 
 
-
+__END__
 
 
 =pod

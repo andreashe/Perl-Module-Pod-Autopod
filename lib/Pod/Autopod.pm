@@ -9,7 +9,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 
 
 use vars qw($VERSION);
-$VERSION = '1.07';
+$VERSION = '1.08';
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
@@ -1399,9 +1399,11 @@ my $text='';
 			my $name = $e->{'name'};
 			my $type = $e->{'type'};
 	
+			my $wname = $name || $type;
+	
 			if ($type ne 'keyvalue'){
 				my $ctype=$this->_typeToChar($type);
-				push @or,"$ctype$name";
+				push @or,"$ctype$wname";
 			}else{
 				my $typev = $e->{'typevalue'};
 				my $ctype=$this->_typeToChar($typev);
@@ -1447,6 +1449,7 @@ return $c;
 
 
 1;
+
 
 
 
@@ -1502,6 +1505,8 @@ Please note, there is also an "autopod" command line util in this package.
 
 
 =head1 REQUIRES
+
+L<Pod::Autopod> 
 
 L<Pod::Abstract::BuildNode> 
 
