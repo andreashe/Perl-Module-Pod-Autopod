@@ -14,7 +14,7 @@ WriteMakefile
           'INSTALLDIRS' => 'site',
           'EXE_FILES' => ['bin/autopod'],
           'PL_FILES' => {},
-					'AUTHOR'   => 'Andreas Hernitscheck <ahernit@cpan.org>', 
+			'AUTHOR'   => 'Andreas Hernitscheck <ahernit@cpan.org>', 
 );
 
 
