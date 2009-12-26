@@ -1,3 +1,4 @@
+use 5.006; #Pod::Abstract
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
