@@ -6,7 +6,7 @@ use strict;
 use Pod::Abstract;
 use Pod::Abstract::BuildNode qw(node nodes);
 
-our $VERSION = '1.08';
+our $VERSION = '1.09';
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
@@ -387,6 +387,7 @@ my $v={@_};
 my $updateonly=$v->{'updateonly'};
 my $verbose=$v->{'verbose'};
 my $pod=$v->{'pod'};
+my $poddir=$v->{'poddir'};
 my $border=$this->getBorderString();
 
 
@@ -396,6 +397,19 @@ my $border=$this->getBorderString();
 	foreach my $filein (@dir){
 		
 		my $fileout = $filein;
+
+    if ($poddir){
+      $pod=1;
+      $fileout=~ s|^$directory|$poddir|;
+
+      my $p=_extractPath($fileout);
+
+
+      if (!-e $p){
+        _makeDirRecursive($p);
+      }
+    }
+
 		
 		my $filecontent = $this->_getFileScalar($filein);
 		if ($updateonly){
@@ -657,7 +671,7 @@ my $arr=shift or die "Arrayref expected";
 		
 		my $line = $arr->[$i];
 		
-		if (($line=~ m/^\s*\#+(.*)/) && ($state=~ m/^(wait|rem)$/)){			
+		if (($line=~ m/^\s*\#+(.*)/) && ($state=~ m/^(wait|rem)$/)){	
 			$state='rem';
 			$line=~ m/^\s*\#+(.*)/;
 			my $text=$1;
@@ -1363,7 +1377,7 @@ my $mat=$attr->{$method};
 
 	my $text;
 	if ($mat->{'head'}){
-		$text = join("",@{ $mat->{'head'} });
+		$text = join("\n",@{ $mat->{'head'} }); ## I added the return here, which is necessary using example codes before methods
 		if ($text){$text.="\n\n\n"};
 	
 		$node->push( node->text($text) );
@@ -1441,6 +1455,48 @@ my $c='';
 
 return $c;
 }
+
+
+
+
+
+sub _makeDirRecursive{
+my $dir=shift;
+my $path;
+
+  if (!-e $dir){
+
+    my @path=split(/\//,$dir);
+
+    foreach my $p (@path){
+      if (!-e $p){
+        mkdir $path.$p
+        #print $path.$p."\n";
+      }
+      $path.=$p.'/';
+    }
+
+  }
+}
+
+
+
+sub _extractPath{
+my $p=shift;
+
+  if ($p=~ m/\//){
+    $p=~ s/(.*)\/(.*)$/$1/;
+  }else{
+    if ($p=~ m/^\.*$/){ # only ".."
+      $p=$p; ## nothing to do
+    }else{
+      $p='';
+    }
+  }
+
+return $p;
+}
+
 
 
 

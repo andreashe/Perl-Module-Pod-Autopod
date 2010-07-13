@@ -22,6 +22,7 @@ GetOptions(	$options,
 						"update|u",
 						"verbose",
 						"pod",
+            "poddir=s",
 						);
 
             
@@ -49,6 +50,7 @@ if ($options->{'readdir'}){ ## multiple files
 
 	my $work = {	updateonly	=>	$options->{'update'},
 								pod					=>	$options->{'pod'},
+                poddir      =>  $options->{'poddir'},
 								verbose			=>	$options->{'verbose'},
 							};
 
@@ -111,12 +113,12 @@ The following options may be used:
 Prints this help.
 
 
-=item B<--readfile | r>
+=item B<--readfile | -r>
 
 Perl module to be parsed for building a pod.
 
 
-=item B<--writefile | w>
+=item B<--writefile | -w>
 
 Output file to write the pod.
 
@@ -153,7 +155,12 @@ An alternative is to write somewhere in the pm file the magic word "AUTOPODME".
 =item B<--pod>
 
 In combination with --readdir it writes separat pod files instead of updating the original pm files.
-So far the will be parallel to the pm file.
+They will be parallel to the pm file.
+
+=item B<--poddir>
+
+It writes the pod files to a separate directory. --pod is automatically enabled when using --poddir.
+
 	
 =item B<--verbose>
 
