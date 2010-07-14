@@ -1712,13 +1712,6 @@ ConstructorThe keyvalues are not mandatory.selfstring may hold something like '$
 Builds the pod. Called automatically when imporing a perl code.
 
 
-=head2 foo
-
- $this->foo();
-
-This method is doing foo. print $this->foo();It is not doing bar, only foo.
-
-
 =head2 getBorderString
 
  my $scalar = $this->getBorderString();
