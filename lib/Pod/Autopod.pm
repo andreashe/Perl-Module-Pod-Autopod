@@ -6,7 +6,7 @@ use strict;
 use Pod::Abstract;
 use Pod::Abstract::BuildNode qw(node nodes);
 
-our $VERSION = '1.12';
+our $VERSION = '1.13';
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
@@ -253,10 +253,13 @@ my $s=shift;
 # Expects Perl code as arrayref
 # or text (scalar).
 # 
-# When used, it automatically runs scanArray(). 
-sub setPerlCode{ ## void ($text|\@array)
+# When used, it automatically runs scanArray().
+# This now passes the filename to be used in case
+# we are podding a .pl or .cgi file. NW 
+sub setPerlCode{ ## void ($text|\@array, $file)
 my $self=shift;
 my $code=shift;
+my $file=shift;
 
 	my $arr; 
 
@@ -269,7 +272,7 @@ my $code=shift;
 
 	$self->{'PERL_CODE'}=$arr;
 
-	$self->scanArray($arr);	
+	$self->scanArray($arr, $file);	
 	$self->buildPod();
 }
 
@@ -336,14 +339,14 @@ return join("",@$a);
 
 # writes a pod file
 #
-# If the file has a pm extension, it writes the perl code and the pod
+# If the file has a pm or pl or cgi extension, it writes the perl code and the pod
 # If the file has a pod extension or any, it only writes the pod.
 sub writeFile{ # void ($filename)
 my $self=shift;
 my $file=shift;
 my $pod=$self->getPod();
 
-	if ($file=~ m/\.pm$/i){ ## target is pm file, so add perl-code 
+	if ($file=~ m/\.pm$|\.pl$|\.cgi$/i){ ## target is pm or pl or cgi file, so add perl-code 
 		my $text=$self->getPerlCode();
 		$text.="\n".$self->{'BORDER'}."\n\n$pod";
 		$self->_putFile($file,$text);
@@ -361,7 +364,7 @@ my $file=shift or die "need filename";
 
 
 	my $arr = $self->_getFileArray($file);
-	$self->setPerlCode($arr);
+	$self->setPerlCode($arr, $file);
 	
 	
 }
@@ -562,7 +565,7 @@ my $text=shift;
 sub scanArray{
 my $self=shift;	
 my $arr=shift or die "Arrayref expected";	
-	
+my $file=shift;	
 	$self->{'STATE'} = 'head';
 	
 	
@@ -610,6 +613,9 @@ my $arr=shift or die "Arrayref expected";
 			$self->{'PKGNAME'}=$1;
 			$self->{'PKGNAME_DESC'}=$2;
 			$self->{'PKGNAME_DESC'}=~ s/^\s*\#*//g;
+		} else {
+			$self->{'PKGNAME'}=$file;
+		        $self->{'PKGNAME_DESC'}=$file;
 		}
 
 		if ($line=~ m/^\s*use +([^\; ]+)[\; ](.*)/){
@@ -1272,8 +1278,8 @@ my $attr = $self->{'METHOD_ATTR'};
 		my $node = node->root;
 			
 		my $desc=$more->{$area};
-		
-		if (length(@$desc) > 0){
+                # length(@$desc) throws an error on newer perl, so use scalar(@$desc) instead. NW		
+		if (scalar(@$desc) > 0){
 	
 			$node->push( node->head1("$area") );
 			$node->push( node->text( join("\n",@$desc)."\n\n" ));
