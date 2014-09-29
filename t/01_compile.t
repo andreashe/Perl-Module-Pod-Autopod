@@ -1,19 +1,12 @@
 #!/usr/bin/perl
 
+use lib 'lib','../lib';
+
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 1;
 
-my @modules = qw(
-FileHandle;
-Pod::Abstract
-Pod::Abstract::BuildNode
-);
-
-foreach my $module (@modules) {
-    eval " use $module ";
-    ok(!$@, "$module compiles");
-}
+use_ok("Pod::Autopod");
 
 1;

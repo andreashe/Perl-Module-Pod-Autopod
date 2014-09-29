@@ -6,7 +6,6 @@ use strict;
 use Pod::Abstract;
 use Pod::Abstract::BuildNode qw(node nodes);
 
-our $VERSION = '1.13';
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
