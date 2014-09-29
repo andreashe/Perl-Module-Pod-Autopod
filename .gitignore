@@ -17,5 +17,6 @@ nytprof.out
 /pm_to_blib
 *.o
 *.bs
+.DS_Store
 .dist.ini.swp
 Pod-Autopod-*
