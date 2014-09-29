@@ -345,7 +345,7 @@ my $self=shift;
 my $file=shift;
 my $pod=$self->getPod();
 
-	if ($file=~ m/\.pm$|\.pl$|\.cgi$/i){ ## target is pm or pl or cgi file, so add perl-code 
+	if ($file=~ m/\.(pm|pl|cgi)$/i){ ## target is pm or pl or cgi file, so add perl-code 
 		my $text=$self->getPerlCode();
 		$text.="\n".$self->{'BORDER'}."\n\n$pod";
 		$self->_putFile($file,$text);
