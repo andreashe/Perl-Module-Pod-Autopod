@@ -7,8 +7,8 @@ use Pod::Abstract;
 use Pod::Abstract::BuildNode qw(node nodes);
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
-# The idea is to have something similar like javadoc. It analyzes comments written directly
-# obove the method definitions. It is designed to assumes it will operate on a .pm file which represents a Perl class.
+# The idea is to have something similar to javadoc. It analyzes comments written directly
+# above the method definitions. It is designed to operate on a .pm file which represents a Perl class.
 # However, it also works on .pl (Perl script) and .cgi (CGI script) files as well.
 # Of course it can not understand every kind of syntax, parameters, etc. But the plan is to improve
 # this library in the future to understand more and more automatically.
@@ -74,7 +74,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # The object "$self" is the default and automatially used when a constructor was found ("new")
 # or the class inherits with ISA or "use base".
-# You can change this by the parameter "selfstring" in the autopod constructor.
+# You can change this by passing a string as the parameter "selfstring" in the autopod constructor.
 #
 # The example looks simple, but the engine does more than you think. Please have a look here:
 #
@@ -82,7 +82,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #	  ...
 #  }
 #
-# That procudes the same output! It means the dollar sign of the first example is a symbol which means "scalar".
+# That produces the same output! The dollar sign of the first example is a symbol which means "scalar".
 #
 #  sub foo{ # ($)
 #	  ...
@@ -140,30 +140,29 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # The second "scalar" above is without a "$", that is no mistake, both work.
 #
-# There is also a way to expain that a value A OR B is expected. See here:
+# There is also a way to explain that a value A OR B is expected. See here:
 #
 #  sub foo{# $lista|\$refb (\@list|$text,$flag)
 #  ...
 #  }
 #
-# procudes:
+# produces:
 #
 #   my $lista | \$refb = $self->foo(\@list | $text, $flag);
 #
-# Of course, that is not an official perl syntax with the or "|", but it shows
-# you that is expected.
+# Of course, that is not an official perl syntax with the or "|", but it shows you that this method accepts either a
+# list parameter or a text parameter followed by a flag parameter.
 #
-#
-# In the First Part obove all method descriptions, you can add general informations, which are
-# per default displayed under the head item "DESCRIPTION". But also own items can be used by
-# underlining a text with "=" chars like:
+# In the First Part above all method descriptions, you can add general informations, which are
+# per default displayed under the head item "DESCRIPTION". But also you can create your own headings by
+# underlining text with "=" chars like:
 #
 #  # HOWTO
 #  # =====
 #  # Read here howto do it.
 #
-# Some of these title keywords are allways places in a special order, which you can not change. For
-# example LICENSE is allways near the end.
+# Some of these title keywords are always placed in a certain order defined by POD, which you can not change. For
+# example, the LICENSE section is always near the end.
 #
 #
 # LICENSE
@@ -1303,7 +1302,7 @@ Pod::Autopod - Generates pod documentation by analysing perl modules.
 
 This Module is designed to generate pod documentation of a perl class by analysing its code.
 The idea is to have something similar like javadoc. So it uses also comments written directly
-obove the method definitions. It is designed to asumes a pm file which represents a class.
+above the method definitions. It is designed to asumes a pm file which represents a class.
 
 Of course it can not understand every kind of syntax, parameters, etc. But the plan is to improve
 this library in the future to understand more and more automatically.
@@ -1430,7 +1429,7 @@ There is also a way to expain that a value A OR B is expected. See here:
  ...
  }
 
-procudes:
+produces:
 
   my $lista | \$refb = $self->foo(\@list | $text, $flag);
 
@@ -1438,7 +1437,7 @@ Of course, that is not an official perl syntax with the or "|", but it shows
 you that is expected.
 
 
-In the First Part obove all method descriptions, you can add general informations, which are
+In the First Part above all method descriptions, you can add general informations, which are
 per default displayed under the head item "DESCRIPTION". But also own items can be used by
 underlining a text with "=" chars like:
 
@@ -1446,8 +1445,8 @@ underlining a text with "=" chars like:
  # =====
  # Read here howto do it.
 
-Some of these title keywords are allways places in a special order, which you can not change. For
-example LICENSE is allways near the end.
+Some of these title keywords are always places in a special order, which you can not change. For
+example LICENSE is always near the end.
 
 
 
