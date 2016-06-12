@@ -314,7 +314,7 @@ my $filename=shift;
 my @f;
 
 	my $fh=new FileHandle;
-	open($fh,$filename);
+	open($fh,'<',$filename);
 		#lockhsh($fh);
 		@f=<$fh>;
 		#unlockh($fh);
@@ -551,7 +551,7 @@ my $file=shift;
 my $text=shift;
 
 	my $fh=new FileHandle;
-	open($fh,">$file");
+	open($fh,'>',"$file");
 #		lockh($fh);
 		print $fh $text;
 #		unlockh($fh);
