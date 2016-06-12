@@ -295,15 +295,13 @@ sub getPerlCode
   return $text;
 }
 
-<<<<<<< HEAD
-	my $fh=new FileHandle;
-	open($fh,'<',$filename);
-		#lockhsh($fh);
-		@f=<$fh>;
-		#unlockh($fh);
-	close($fh);
-=======
->>>>>>> 88a9bb6e57d608f3ac6ef727afc6619935991b11
+
+my $fh=new FileHandle;
+open($fh,'<',$filename);
+	#lockhsh($fh);
+	@f=<$fh>;
+	#unlockh($fh);
+close($fh);
 
 # Returns the pod formatted text.
 sub getPod
@@ -533,7 +531,7 @@ sub _putFile
   my $fh = new FileHandle;
   open($fh, ">$file");
 
-<<<<<<< HEAD
+
 sub _putFile{
 my $self=shift;
 my $file=shift;
@@ -541,8 +539,6 @@ my $text=shift;
 
 	my $fh=new FileHandle;
 	open($fh,'>',"$file");
-=======
->>>>>>> 88a9bb6e57d608f3ac6ef727afc6619935991b11
 #		lockh($fh);
   print $fh $text;
 
