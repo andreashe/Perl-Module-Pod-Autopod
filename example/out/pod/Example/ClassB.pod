@@ -38,6 +38,13 @@ Bar is bar
 Bar is bar
 
 
+=head2 foo_bar4
+
+ my $scalar = foo_bar4(\%somevalues);
+
+Bar is bar
+
+
 
 =cut
 

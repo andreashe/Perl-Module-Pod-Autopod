@@ -28,6 +28,10 @@ sub foo_bar3{ # void (hashref somevalues)
 
 }
 
+# Bar is bar
+sub foo_bar4{ # scalar (hashref somevalues)
+  return "";
+}
 
 
 

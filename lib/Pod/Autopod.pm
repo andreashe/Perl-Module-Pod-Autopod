@@ -166,10 +166,26 @@ use Pod::Abstract::BuildNode qw(node nodes);
 # Some of these title keywords are allways places in a special order, which you can not change. For
 # example LICENSE is allways near the end.
 #
+# Added some hacks to teach this tool also some doxygen parametes. For example:
+#
+#  # @brief  kept as simple text
+#  # @param  text to be added
+#  # @return string with some text
+#  sub foo{
+#    return "abc".shift;
+#  }
+#
+#
+# procudes:
+#
+#   my $string = $self->foo($text);
+#
 #
 # LICENSE
 # =======
 # You can redistribute it and/or modify it under the conditions of LGPL.
+#
+# By the way, the source code is quite bad. So feel free to replace this idea with something better Perl OO code.
 # 
 # AUTHOR
 # ======
@@ -571,6 +587,8 @@ my $file=shift;
 	## reverse read
 	for (my $i=0;$i < scalar(@$arr); $i++){
 		my $p=scalar(@$arr)-1-$i;
+
+		my $writeOut = 1;
 		
 		my $line = $arr->[$p];
 
@@ -578,8 +596,33 @@ my $file=shift;
 			$self->{'STATE'} = 'head';
 		}elsif((($line=~ m/^\s*$/) || ($p == 0)) && ($self->{'STATE'} eq 'head')){ ## last line of body
 			$self->{'STATE'} = 'bodywait';
+
+			## collected doxy params? then rewrite methodline
+			if ((exists $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'}) && (scalar(@{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }) > 0)){
+
+				my $methodlinerest = $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'};
+
+				if ($methodlinerest !~ /\{\s+.+/){ ## dont overwrite existing line
+					my @param;
+					foreach my $l (@{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }){
+						$l =~ m/^([^\s]+)/;
+						my $firstword = $1;
+						if ($firstword !~ m/^[\$\@\%]/){$firstword='$'.$firstword}; # scalar is fallback if nothing given
+						push @param, $firstword;
+					}
+					
+					my $retparam = $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyreturn'} || 'void';
+
+					my $newmethodlinerest = sprintf("{ # %s (%s)", $retparam, join(", ",@param));
+					$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'} = $newmethodlinerest;
+				}
+
+			}
+
 		}
 		
+
+
 		if (($self->{'STATE'} eq 'headwait') && ($line!~ m/^\s*$/) && ($line!~ m/^\s*\#/)){
 			$self->{'STATE'}='free';
 		}
@@ -589,6 +632,52 @@ my $file=shift;
 			$self->_clearBodyBuffer();
 			$self->{'STATE'} = 'body';
 			$self->_addHeadBufferToAttr();
+		}
+
+		# a hack for doxy gen, which rewrites the methodline
+		# doxy @return
+		if ($self->{'STATE'} eq 'head'){
+			if ($line=~ m/^\s*#\s*\@return\s+(.*)/){
+				my $retline = $1; # also containts description, which is not used at the moment
+				$retline =~ m/([^\s]+)(.*)/;
+				my $retval = $1;
+				my $desc = $2;
+
+				if ($retval !~ m/^[\$\@\%]/){$retval='$'.$retval}; # scalar is fallback if nothing given
+
+				if (exists $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'returnline'}){
+					$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'} =~ s/(\s*\#\s*)([^\s]+) /$1$retval/;	# remove/replace value behind "sub {" declaration
+				}else{
+					$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'} = $retval;
+				}
+				
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer("returns $desc");
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
+
+				$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyreturn'} = $retval;
+			}
+
+			if ($line=~ m/^\s*#\s*\@brief\s+(.*)/){ ## removes the @brief word
+				my $text = $1;
+				$self->_addLineToHeadBuffer($text);
+				$writeOut = 0;
+			}
+
+			if ($line=~ m/^\s*#\s*\@param\s+(.*)/){ ## creates a param text.
+				my $text = $1;
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer("parameter: $text");
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
+
+				$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} ||= [];
+				push @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text;
+			}
+
+			use Data::Dumper;
+			print Dumper($self->{'METHOD_ATTR'});
 		}
 
 
@@ -601,10 +690,12 @@ my $file=shift;
 			$self->_setMethodReturn(undef);	
 		}
 
-		if ($self->{'STATE'} eq 'head'){
-			$self->_addLineToHeadBuffer($line);
-		}elsif($self->{'STATE'} eq 'body'){
-			$self->_addLineToBodyBuffer($line);	
+		if ($writeOut){
+			if ($self->{'STATE'} eq 'head'){
+				$self->_addLineToHeadBuffer($line);
+			}elsif($self->{'STATE'} eq 'body'){
+				$self->_addLineToBodyBuffer($line);	
+			}
 		}
 		
 		
@@ -646,9 +737,9 @@ my $file=shift;
 	if ((exists $self->{'METHOD_ATTR'}->{'new'}) || (scalar($self->{'INHERITS_FROM'}) >= 1 )){ ## its a class!
 		$self->{'ISCLASS'}=1;
 	}
-	
-	
-#	print Dumper($self->{'METHOD_ATTR'});
+		
+		
+	#	print Dumper($self->{'METHOD_ATTR'});
 	$self->_analyseAttributes();
 
 
@@ -680,7 +771,15 @@ my $arr=shift or die "Arrayref expected";
 			$state='rem';
 			$line=~ m/^\s*\#+(.*)/;
 			my $text=$1;
-			push @text,$text;
+
+			# doxy @brief in head
+			if ($text=~ m/^\s*\@brief\s+(.*)/i){
+				$text = $1;
+			}
+
+
+			push @text,$text;	
+			
 		}elsif(($line!~ m/^\s*\#+(.*)/) && ($state=~ m/^(rem)$/)){
 			$state='done';
 		}
@@ -1316,6 +1415,8 @@ my $attr = $self->{'METHOD_ATTR'};
 
 		my $ok = 1;
 
+		if ($method eq ''){$ok=0};
+
 		if ($method=~ m/^\_/){
 			$ok=0;
 			if ($self->{'alsohiddenmethods'}){$ok=1};
@@ -1515,6 +1616,9 @@ return $p;
 
 
 
+
+
+
 #################### pod generated by Pod::Autopod - keep this line to make pod updates possible ####################
 
 =head1 NAME
@@ -1566,11 +1670,15 @@ Please note, there is also an "autopod" command line util in this package.
 
 L<Pod::Autopod> 
 
+L<Data::Dumper> 
+
 L<Pod::Abstract::BuildNode> 
 
 L<Pod::Abstract> 
 
 L<FileHandle> 
+
+L<5.006> Pod::Abstract uses features of 5.6
 
 
 =head1 HOWTO
@@ -1698,6 +1806,20 @@ underlining a text with "=" chars like:
 Some of these title keywords are allways places in a special order, which you can not change. For
 example LICENSE is allways near the end.
 
+Added some hacks to teach this tool also some doxygen parametes. For example:
+
+ # @brief  kept as simple text
+ # @param  text to be added
+ # @return string with some text
+ sub foo{
+   return "abc".shift;
+ }
+
+
+procudes:
+
+  my $string = $self->foo($text);
+
 
 
 
@@ -1707,7 +1829,14 @@ example LICENSE is allways near the end.
 
  my $object = $self->new($filename => $scalar, alsohiddenmethods => $scalar, selfstring => $scalar);
 
-ConstructorThe keyvalues are not mandatory.selfstring may hold something like '$self' as alternative to '$self', which is default.alsohiddenmethods gets a boolean flag to show also methods which starts with "_".
+Constructor
+
+The keyvalues are not mandatory.
+
+selfstring may hold something like '$self' as alternative to '$self', which is default.
+
+alsohiddenmethods gets a boolean flag to show also methods which starts with "_".
+
 
 
 =head2 buildPod
@@ -1715,6 +1844,18 @@ ConstructorThe keyvalues are not mandatory.selfstring may hold something like '$
  $self->buildPod();
 
 Builds the pod. Called automatically when imporing a perl code.
+
+
+=head2 foo
+
+ $self->foo();
+
+This method is doing foo.
+
+ print $self->foo();
+
+
+It is not doing bar, only foo.
 
 
 =head2 getBorderString
@@ -1742,7 +1883,19 @@ Returns the pod formated text.s
 
  $self->readDirectory($directory, updateonly => $scalar, pod => $scalar, verbose => $scalar);
 
-scans a directoy recoursively for pm files and maygenerate pod of them.You can also set the flag updateonly to build new podonly for files you already build a pod (inside the file)in the past. Alternatively you can write the magic wordAUTOPODME somewhere in the pm file what signals that thispm file wants to be pod'ed by autopod.The flag pod let will build a separate file. If poddir set,the generated pod file will be saved to a deparate directory.With verbose it prints the list of written files.
+scans a directoy recoursively for pm files and may
+generate pod of them.
+
+You can also set the flag updateonly to build new pod
+only for files you already build a pod (inside the file)
+in the past. Alternatively you can write the magic word
+AUTOPODME somewhere in the pm file what signals that this
+pm file wants to be pod'ed by autopod.
+
+The flag pod let will build a separate file. If poddir set,
+the generated pod file will be saved to a deparate directory.
+With verbose it prints the list of written files.
+
 
 
 =head2 readFile
@@ -1756,28 +1909,38 @@ Reading a Perl class file and loads it to memory.
 
  $self->scanArray();
 
-This class may scan the perl code.But it is called automatically when importing a perl code.
+This class may scan the perl code.
+But it is called automatically when importing a perl code.
 
 
 =head2 setBorderString
 
  $self->setBorderString($borderstring);
 
-Set an alternative border string.If you change this, you have to do it again when updating the pod.
+Set an alternative border string.
+If you change this, you have to do it again when updating the pod.
 
 
 =head2 setPerlCode
 
- $self->setPerlCode($text | \@array);
+ $self->setPerlCode($text | \@array, $file);
 
-Expects Perl code as arrayrefor text (scalar).When used, it automatically runs scanArray().
+Expects Perl code as arrayref
+or text (scalar).
+
+When used, it automatically runs scanArray().
+This now passes the filename to be used in case
+we are podding a .pl or .cgi file. NW
 
 
 =head2 writeFile
 
  $self->writeFile($filename);
 
-writes a pod fileIf the file has a pm extension, it writes the perl code and the podIf the file has a pod extension or any, it only writes the pod.
+writes a pod file
+
+If the file has a pm or pl or cgi extension, it writes the perl code and the pod
+If the file has a pod extension or any, it only writes the pod.
 
 
 
@@ -1789,6 +1952,8 @@ Andreas Hernitscheck  ahernit(AT)cpan.org
 =head1 LICENSE
 
 You can redistribute it and/or modify it under the conditions of LGPL.
+
+By the way, the source code is quite bad. So feel free to replace this idea with something better Perl OO code.
 
 
 

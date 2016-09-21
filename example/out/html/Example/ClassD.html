@@ -1,4 +1,4 @@
-<html><head><title>Example::Minimum</title>
+<html><head><title>Example::ClassD</title>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" >
 <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
 
@@ -26,10 +26,11 @@
 <div class='indexgroup'>
 <ul   class='indexList indexList1'>
   <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
-  <li class='indexItem indexItem1'><a href='#REQUIRES'>REQUIRES</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
   <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
   <ul   class='indexList indexList2'>
-    <li class='indexItem indexItem2'><a href='#do_something'>do_something</a>
+    <li class='indexItem indexItem2'><a href='#foo'>foo</a>
+    <li class='indexItem indexItem2'><a href='#foo2'>foo2</a>
   </ul>
 </ul>
 </div>
@@ -38,24 +39,53 @@
 name="NAME"
 >NAME</a></h1>
 
-<p>Example::Minimum</p>
+<p>Example::ClassD - Example Class D</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
-name="REQUIRES"
->REQUIRES</a></h1>
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
 
-<p><a href="../DBI.html" class="podlinkpod"
->DBI</a></p>
+<p>this is brief text of description This is class D</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="METHODS"
 >METHODS</a></h1>
 
 <h2><a class='u' href='#___top' title='click to go to top of document'
-name="do_something"
->do_something</a></h2>
+name="foo"
+>foo</a></h2>
 
-<pre> do_something();</pre>
+<pre> my $returnvalue = foo($text);</pre>
+
+<p>This method is doing foo.</p>
+
+<pre> print $this-&#62;foo();</pre>
+
+<p>It is not doing bar, only foo.</p>
+
+<p>parameter: someparam1 with description 1</p>
+
+<p>parameter: someparam2 with description 2</p>
+
+<p>returns some text of returning value</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="foo2"
+>foo2</a></h2>
+
+<pre> my $returnvalue = foo2($someparam2, $someparam1);</pre>
+
+<p>This method is doing foo.</p>
+
+<pre> print $this-&#62;foo();</pre>
+
+<p>It is not doing bar, only foo.</p>
+
+<p>parameter: someparam1 with description 1</p>
+
+<p>parameter: someparam2 with description 2</p>
+
+<p>returns some text of returning value</p>
 <p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
 
 <!-- end doc -->
