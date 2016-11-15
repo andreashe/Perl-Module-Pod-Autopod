@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 
-use lib 'libs/cpan';
-use lib 'libs/ext';
+use lib 'lib';
 
 use Getopt::Long;
 use Pod::Text;

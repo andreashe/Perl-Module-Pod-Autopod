@@ -676,8 +676,6 @@ my $file=shift;
 				push @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text;
 			}
 
-			use Data::Dumper;
-			print Dumper($self->{'METHOD_ATTR'});
 		}
 
 
@@ -698,14 +696,10 @@ my $file=shift;
 			}
 		}
 		
-		
 		if ($line=~ m/^\s*package ([^\;]+)\;(.*)/){
 			$self->{'PKGNAME'}=$1;
 			$self->{'PKGNAME_DESC'}=$2;
 			$self->{'PKGNAME_DESC'}=~ s/^\s*\#*//g;
-		} else {
-			$self->{'PKGNAME'}=$file;
-		        $self->{'PKGNAME_DESC'}=$file;
 		}
 
 		if ($line=~ m/^\s*use +([^\; ]+)[\; ](.*)/){
@@ -739,6 +733,14 @@ my $file=shift;
 	}
 		
 		
+	if (!exists $self->{'PKGNAME'}){
+      my $filet=$file;
+      $filet =~ s/\.pm//g;
+      $filet =~ s|/|::|g;
+			$self->{'PKGNAME'}=$filet;
+      $self->{'PKGNAME_DESC'}=$filet;
+  }
+
 	#	print Dumper($self->{'METHOD_ATTR'});
 	$self->_analyseAttributes();
 
@@ -1233,8 +1235,9 @@ my $self=shift;
 
 				$desc=$self->_trim($desc);
 				my $text = "L<$name> $desc\n\n";
-
-				$node->push( node->text($text));
+        if ($name ne $self->{'PKGNAME'}){
+				  $node->push( node->text($text));
+        }
 			}		
 		}
 		
@@ -1348,9 +1351,9 @@ my $name = $self->{'PKGNAME'};
 	push @name,$self->_trim($self->{'PKGNAME_DESC'}) if $self->{'PKGNAME_DESC'};
 	
 	my $namestr = join(" - ",@name)."\n\n";
-	
-	$node->push( node->text($namestr));
 
+
+	$node->push( node->text($namestr));
 
 
 	$self->{'POD_PARTS'}->{'NAME'} = $node;
