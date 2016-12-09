@@ -476,7 +476,7 @@ my @fm;
 
 	@f=$self->_getDirArray($path);
 
-	$self->_filterFileArray(\@f);
+	#$self->_filterFileArray(\@f);
 	$self->_addPathToArray($path,\@f);
 
 	foreach my $d (@f){
