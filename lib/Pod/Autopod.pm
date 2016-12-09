@@ -575,6 +575,10 @@ my $text=shift;
 }  
 
 
+
+
+
+
 # This class may scan the perl code.
 # But it is called automatically when importing a perl code.
 sub scanArray{
@@ -589,6 +593,9 @@ my $file=shift;
 		my $p=scalar(@$arr)-1-$i;
 
 		my $writeOut = 1;
+		
+		
+		
 		
 		my $line = $arr->[$p];
 
@@ -680,32 +687,8 @@ my $file=shift;
 
 
 
-		## list items
-		if ( ($self->{'STATE'} eq 'head') || ($self->{'STATE'} eq 'free') ){
-
-			if ($line=~ m/^\s*#\s*-\s+(.*)/){ # minus
-				my $text = $1;
-
-				if ( $self->{'SUB_STATE'} ne 'listitem' ){
-					$self->{'SUB_STATE'} = 'listitem';
-
-					$self->_addLineToHeadBuffer("=back"); # from down to top
-					$self->_addLineToHeadBuffer("");
-				}
 
 
-				$self->_addLineToHeadBuffer($text);
-				$self->_addLineToHeadBuffer("=item *");
-
-				$line = undef;
-			
-			}elsif( $self->{'SUB_STATE'} eq 'listitem' ){
-				$self->_addLineToHeadBuffer("=over");
-				$self->_addLineToHeadBuffer("");
-				delete $self->{'SUB_STATE'};
-			}
-
-		}
 
 
 
@@ -719,6 +702,10 @@ my $file=shift;
 			$self->_setMethodReturn(undef);	
 		}
 
+
+                
+                
+		
 		if ($writeOut){
 			if ($self->{'STATE'} eq 'head'){
 				$self->_addLineToHeadBuffer($line);
@@ -1146,7 +1133,42 @@ my $array=$v->{'array'};
 		}	
 	}
 
+	
+	
+    foreach my $line (@{$array}){
+        my @replace;
+  
+        ## list items
+        if ($line=~ m/^\s*-\s+(.*)/){ # minus
+                my $text = $1;
 
+                if ( $self->{'SUB_STATE'} ne 'listitem' ){
+                    $self->{'SUB_STATE'} = 'listitem';
+
+                    push @replace, "=over";
+                }
+
+                push @replace,"";
+                push @replace, "=item *";
+                push @replace, $text;
+                push @replace,"";
+                
+                $line = undef;
+        
+        }elsif( $self->{'SUB_STATE'} eq 'listitem' ){
+                push @replace, "=back";
+                push @replace, "";
+
+                delete $self->{'SUB_STATE'};
+        }
+
+        if (scalar(@replace) > 0){
+            $line = join("\n",@replace);
+        }
+    }
+
+    
+    
 }
 
 
