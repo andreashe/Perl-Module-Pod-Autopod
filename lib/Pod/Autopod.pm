@@ -679,7 +679,9 @@ my $file=shift;
 		}
 
 
-		if ($self->{'STATE'} eq 'head'){
+
+		## list items
+		if ( ($self->{'STATE'} eq 'head') || ($self->{'STATE'} eq 'free') ){
 
 			if ($line=~ m/^\s*#\s*-\s+(.*)/){ # minus
 				my $text = $1;
