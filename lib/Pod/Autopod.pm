@@ -648,7 +648,7 @@ my $file=shift;
 				my $retline = $1; # also containts description, which is not used at the moment
 				$retline =~ m/([^\s]+)(.*)/;
 				my $retval = $1;
-				my $desc = $2;
+				my $desc = $2 || $retval;
 
 				if ($retval !~ m/^[\$\@\%]/){$retval='$'.$retval}; # scalar is fallback if nothing given
 
@@ -666,8 +666,8 @@ my $file=shift;
 				$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyreturn'} = $retval;
 			}
 
-			if ($line=~ m/^\s*#\s*\@brief\s+(.*)/){ ## removes the @brief word
-				my $text = $1;
+			if ($line=~ m/^\s*#\s*\@(brief|method)\s+(.*)/){ ## removes the @brief word
+				my $text = $2;
 				$self->_addLineToHeadBuffer($text);
 				$writeOut = 0;
 			}
@@ -796,7 +796,7 @@ my $arr=shift or die "Arrayref expected";
 			if ($text=~ m/^\s*\@brief\s+(.*)/i){
 				$text = $1;
 			}
-
+			
 
 			push @text,$text;	
 			
@@ -1162,6 +1162,11 @@ my $array=$v->{'array'};
                 delete $self->{'SUB_STATE'};
         }
 
+	if ( $line =~ m/^\s*\@method\s+(.*)/i ){
+            push @replace,"";
+	}
+
+        
         if (scalar(@replace) > 0){
             $line = join("\n",@replace);
         }
