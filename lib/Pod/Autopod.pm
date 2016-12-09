@@ -1605,17 +1605,17 @@ my $path;
   if (!-e $dir){
 
     my @path=split(/\//,$dir);
-
     foreach my $p (@path){
-      if (!-e $p){
-        mkdir $path.$p
-        #print $path.$p."\n";
+      if (!-e $path.$p){
+        mkdir $path.$p;
+#        print "CREATE: ".$path.$p."\n";
       }
       $path.=$p.'/';
     }
 
   }
 }
+
 
 
 
