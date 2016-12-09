@@ -679,6 +679,35 @@ my $file=shift;
 		}
 
 
+		if ($self->{'STATE'} eq 'head'){
+
+			if ($line=~ m/^\s*#\s*-\s+(.*)/){ # minus
+				my $text = $1;
+
+				if ( $self->{'SUB_STATE'} ne 'listitem' ){
+					$self->{'SUB_STATE'} = 'listitem';
+
+					$self->_addLineToHeadBuffer("=back"); # from down to top
+					$self->_addLineToHeadBuffer("");
+				}
+
+
+				$self->_addLineToHeadBuffer($text);
+				$self->_addLineToHeadBuffer("=item *");
+
+				$line = undef;
+			
+			}elsif( $self->{'SUB_STATE'} eq 'listitem' ){
+				$self->_addLineToHeadBuffer("=over");
+				$self->_addLineToHeadBuffer("");
+				delete $self->{'SUB_STATE'};
+			}
+
+		}
+
+
+
+
 		if ($line=~ m/^\s*sub [^ ]+/){ ## head line
 			$self->_clearHeadBuffer();
 			$self->_setMethodLine($line);

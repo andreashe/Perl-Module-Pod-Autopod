@@ -23,6 +23,19 @@ This method is doing foo.
 It is not doing bar, only foo.
 
 
+=over
+
+=item *
+list item a
+
+=item *
+list item b
+
+=back
+
+
+
+
 
 =cut
 

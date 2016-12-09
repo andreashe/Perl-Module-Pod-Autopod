@@ -10,6 +10,11 @@ package Example::ClassC; # Example Class C
 #
 # 
 # It is not doing bar, only foo.
+#
+# - list item a
+# - list item b
+#
+#
 sub foo{ # void ($text)
 
 }
