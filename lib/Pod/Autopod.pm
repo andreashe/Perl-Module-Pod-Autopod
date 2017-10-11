@@ -385,7 +385,7 @@ my $file=shift or die "need filename";
 }
 
 
-## scans a directoy recoursively for pm files and may
+## scans a directoy recursively for pm files and may
 ## generate pod of them.
 ##
 ## You can also set the flag updateonly to build new pod
@@ -409,7 +409,7 @@ my $poddir=$v->{'poddir'};
 my $border=$self->getBorderString();
 
 
-	my @dir = $self->_getPodFilesRecoursive($directory);
+	my @dir = $self->_getPodFilesRecursive($directory);
 
 
 	foreach my $filein (@dir){
@@ -452,13 +452,13 @@ my $border=$self->getBorderString();
 
 
 
-sub _getPodFilesRecoursive{
+sub _getPodFilesRecursive{
 my $self=shift;
 my $path=shift;
 my %para=@_;
 my @files;
 
-	@files=$self->_getFilesRecoursiveAll($path);
+	@files=$self->_getFilesRecursiveAll($path);
 	$self->_filterFileArray(\@files,ext=>'pm',path=>$path);
 	@files=sort @files;
 
@@ -466,7 +466,7 @@ return wantarray ? @files : \@files;
 }
 
 
-sub _getFilesRecoursiveAll{
+sub _getFilesRecursiveAll{
 my $self=shift;
 my $path=shift;
 my %para;
@@ -481,7 +481,7 @@ my @fm;
 
 	foreach my $d (@f){
 		if (-d $d){
-		push @fm,$self->_getFilesRecoursiveAll($d);
+		push @fm,$self->_getFilesRecursiveAll($d);
 		}
 	}
 	push @f,@fm;
@@ -1944,7 +1944,7 @@ Returns the pod formated text.s
 
  $self->readDirectory($directory, updateonly => $scalar, pod => $scalar, verbose => $scalar);
 
-scans a directoy recoursively for pm files and may
+scans a directoy recursively for pm files and may
 generate pod of them.
 
 You can also set the flag updateonly to build new pod
