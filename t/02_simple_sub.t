@@ -13,7 +13,7 @@ use Pod::Autopod;
 
 # This is a test sub
 # @param single parameter
-sub test_case { # ($param)
+sub test_case { # $output ($param)
     return 1;
 }
 
@@ -44,7 +44,7 @@ L<lib>
 
 =head2 test_case
 
- test_case($param);
+ my $output = test_case($param);
 
 This is a test sub
 
