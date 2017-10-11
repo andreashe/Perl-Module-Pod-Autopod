@@ -13,7 +13,11 @@ use Pod::Autopod;
 
 # This is a test sub
 # @param single parameter
-sub test_case { # $output ($param)
+sub test_case_1 { # $output ($param)
+    return 1;
+}
+
+sub test_case_2 { # $a,$b,$c (\@aref,\%href)
     return 1;
 }
 
@@ -42,15 +46,19 @@ L<lib>
 
 =head1 METHODS
 
-=head2 test_case
+=head2 test_case_1
 
- my $output = test_case($param);
+ my $output = test_case_1($param);
 
 This is a test sub
 
 parameter: single parameter
 
 
+
+=head2 test_case_2
+
+ my ($a, $b, $c) = test_case_2(\@aref, \%href);
 
 
 =cut
