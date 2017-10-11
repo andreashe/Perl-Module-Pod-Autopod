@@ -14,11 +14,13 @@ use Pod::Autopod;
 # This is a test sub
 # @param single parameter
 sub test_case_1 { # $output ($param)
-    return 1;
 }
 
 sub test_case_2 { # $a,$b,$c (\@aref,\%href)
-    return 1;
+}
+
+# @return nothing it really returns nothing
+sub test_case_3 {
 }
 
 my $ap = new Pod::Autopod();
@@ -59,6 +61,15 @@ parameter: single parameter
 =head2 test_case_2
 
  my ($a, $b, $c) = test_case_2(\@aref, \%href);
+
+=head2 test_case_3
+
+ test_case_3();
+
+
+returns  it really returns nothing
+
+
 
 
 =cut
