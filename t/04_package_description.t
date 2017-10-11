@@ -11,7 +11,7 @@ use Test;
 
 BEGIN { plan tests => 1 }
 
-use Pod::Autopod;
+use Pod::Autopod; # using the developed module
 
 # This is a test sub
 sub test_case_1 { # $output ($param)
@@ -33,7 +33,7 @@ MyNewPackage - this package is used as a container for subs
 
 =head1 REQUIRES
 
-L<Pod::Autopod> 
+L<Pod::Autopod> using the developed module
 
 L<Test> 
 

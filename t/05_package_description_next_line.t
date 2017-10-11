@@ -13,6 +13,7 @@ use Test;
 BEGIN { plan tests => 1 }
 
 use Pod::Autopod;
+# comment line following an import is not treated as import's description
 
 # This is a test sub
 sub test_case_1 { # $output ($param)
