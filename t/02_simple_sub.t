@@ -19,8 +19,11 @@ sub test_case_1 { # $output ($param)
 sub test_case_2 { # $a,$b,$c (\@aref,\%href)
 }
 
+sub test_case_3 { # void ($p)
+}
+
 # @return nothing it really returns nothing
-sub test_case_3 {
+sub test_case_4 {
 }
 
 my $ap = new Pod::Autopod();
@@ -64,7 +67,11 @@ parameter: single parameter
 
 =head2 test_case_3
 
- test_case_3();
+ test_case_3($p);
+
+=head2 test_case_4
+
+ test_case_4();
 
 
 returns  it really returns nothing
