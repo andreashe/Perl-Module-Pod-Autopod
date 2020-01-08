@@ -586,6 +586,17 @@ my $self=shift;
 my $arr=shift or die "Arrayref expected";	
 my $file=shift;	
 	$self->{'STATE'} = 'head';
+
+    my %allowed_return_types = (void => '',
+    'array'			=>	'@',
+    'arrayref'	=>	'\@',
+    'hash'			=>	'%',
+    'hashref'		=>	'\%',
+    'method'		=>	'&',
+    'scalar'		=>	'$',
+    'scalarref'	=>	'\$',
+    );
+
 	
 	
 	## reverse read
@@ -614,7 +625,9 @@ my $file=shift;
 					foreach my $l (@{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }){
 						$l =~ m/^([^\s]+)/;
 						my $firstword = $1;
-						if ($firstword !~ m/^[\$\@\%]/){$firstword='$'.$firstword}; # scalar is fallback if nothing given
+                        $firstword =~ s/[\W]$//; # remove potential trailing punctuation
+                        # either supplied a var type or a ref to a var type
+						if ($firstword !~ m/(^[\$\@\%]|^\\[\$\@\%])/ && !defined($allowed_return_types{$firstword})){$firstword='$'.$firstword}; # scalar is fallback if nothing given
 						push @param, $firstword;
 					}
 					
@@ -650,7 +663,7 @@ my $file=shift;
 				my $retval = $1;
 				my $desc = $2 || $retval;
 
-				if ($retval !~ m/^[\$\@\%]/){$retval='$'.$retval}; # scalar is fallback if nothing given
+				if ($retval !~ m/(^[\$\@\%]|^\\[\$\@\%])/ && !defined($allowed_return_types{$retval})){$retval='$'.$retval}; # scalar is fallback if nothing given
 
 				if (exists $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'returnline'}){
 					$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'} =~ s/(\s*\#\s*)([^\s]+) /$1$retval/;	# remove/replace value behind "sub {" declaration
@@ -680,7 +693,18 @@ my $file=shift;
 				$writeOut = 0;
 
 				$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} ||= [];
-				push @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text;
+
+                # because this file is read from the bottom up, we need to reverse the read parameter order
+				unshift @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text if $self->_trim($text) ne '';
+			}
+
+            # allow custom on-the-fly parameters by using a ! after @
+            if ($line=~ m/^\s*#\s*\@!(.*?)\s+(.*)/){
+				my $text = $1 . ': ' . $2;
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer($text);
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
 			}
 
 		}
