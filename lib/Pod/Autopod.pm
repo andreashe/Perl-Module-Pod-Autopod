@@ -586,6 +586,17 @@ my $self=shift;
 my $arr=shift or die "Arrayref expected";	
 my $file=shift;	
 	$self->{'STATE'} = 'head';
+
+    my %allowed_return_types = (void => '',
+    'array'			=>	'@',
+    'arrayref'	=>	'\@',
+    'hash'			=>	'%',
+    'hashref'		=>	'\%',
+    'method'		=>	'&',
+    'scalar'		=>	'$',
+    'scalarref'	=>	'\$',
+    );
+
 	
 	
 	## reverse read
@@ -615,7 +626,8 @@ my $file=shift;
 						$l =~ m/^([^\s]+)/;
 						my $firstword = $1;
                         $firstword =~ s/[\W]$//; # remove potential trailing punctuation
-						if ($firstword !~ m/^[\$\@\%]/){$firstword='$'.$firstword}; # scalar is fallback if nothing given
+                        # either supplied a var type or a ref to a var type
+						if ($firstword !~ m/(^[\$\@\%]|^\\[\$\@\%])/ && !defined($allowed_return_types{$firstword})){$firstword='$'.$firstword}; # scalar is fallback if nothing given
 						push @param, $firstword;
 					}
 					
@@ -651,7 +663,7 @@ my $file=shift;
 				my $retval = $1;
 				my $desc = $2 || $retval;
 
-				if ($retval !~ m/^[\$\@\%]/){$retval='$'.$retval}; # scalar is fallback if nothing given
+				if ($retval !~ m/(^[\$\@\%]|^\\[\$\@\%])/ && !defined($allowed_return_types{$retval})){$retval='$'.$retval}; # scalar is fallback if nothing given
 
 				if (exists $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'returnline'}){
 					$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'methodlinerest'} =~ s/(\s*\#\s*)([^\s]+) /$1$retval/;	# remove/replace value behind "sub {" declaration
