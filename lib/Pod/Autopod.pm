@@ -685,6 +685,16 @@ my $file=shift;
                 # because this file is read from the bottom up, we need to reverse the read parameter order
 				unshift @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text if $self->_trim($text) ne '';
 			}
+
+            # allow custom on-the-fly parameters by using a ! after @
+            if ($line=~ m/^\s*#\s*\@!(.*?)\s+(.*)/){
+				my $text = $1 . ': ' . $2;
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer($text);
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
+			}
+
 		}
 
 
