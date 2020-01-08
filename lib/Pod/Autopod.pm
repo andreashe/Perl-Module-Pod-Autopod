@@ -614,6 +614,7 @@ my $file=shift;
 					foreach my $l (@{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }){
 						$l =~ m/^([^\s]+)/;
 						my $firstword = $1;
+                        $firstword =~ s/[\W]$//; # remove potential trailing punctuation
 						if ($firstword !~ m/^[\$\@\%]/){$firstword='$'.$firstword}; # scalar is fallback if nothing given
 						push @param, $firstword;
 					}
@@ -680,9 +681,10 @@ my $file=shift;
 				$writeOut = 0;
 
 				$self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} ||= [];
-				push @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text;
-			}
 
+                # because this file is read from the bottom up, we need to reverse the read parameter order
+				unshift @{ $self->{'METHOD_ATTR'}->{ $self->_getMethodName() }->{'doxyparamline'} }, $text if $self->_trim($text) ne '';
+			}
 		}
 
 
