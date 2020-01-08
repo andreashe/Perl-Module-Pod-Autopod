@@ -694,8 +694,20 @@ my $file=shift;
 
 
 		if ($line=~ m/^\s*sub [^ ]+/){ ## head line
+			my $analysisLine = $self->_trim($line);
+			if ($line !~ /;|{/) {
+				my $nextIndex = $p + 1;
+				while ($#{$arr} > $nextIndex) {
+					my $nextLine = $arr->[$nextIndex];
+					if ($nextLine =~ /;|{/) {
+						$analysisLine = $self->_trim($line) . $self->_trim($nextLine);
+						last;
+					}
+					$nextIndex++;
+				}
+			}
 			$self->_clearHeadBuffer();
-			$self->_setMethodLine($line);
+			$self->_setMethodLine($analysisLine);
 			$self->{'STATE'} = 'headwait';
 			$self->_addBodyBufferToAttr();
 			$self->_setMethodAttr($self->_getMethodName(),'returnline',$self->_getMethodReturn());
