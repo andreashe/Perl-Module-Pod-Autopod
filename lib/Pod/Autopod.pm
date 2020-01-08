@@ -168,9 +168,10 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # Added some hacks to teach this tool also some doxygen parametes. For example:
 #
-#  # @brief  kept as simple text
-#  # @param  text to be added
-#  # @return string with some text
+#  # @brief   kept as simple text
+#  # @param   text to be added
+#  # @return  string with some text
+#  # @!CUSTOM any custom text (the ! is the trigger for the custom code)
 #  sub foo{
 #    return "abc".shift;
 #  }
@@ -756,25 +757,25 @@ my $file=shift;
 			$self->{'PKGNAME_DESC'}=~ s/^\s*\#*//g;
 		}
 
-		if ($line=~ m/^\s*use +([^\; ]+)[\; ](.*)/){
+		if ($line=~ m/^\s*(use|require) +([^\; ]+)[\; ](.*)/){
 			$self->{'REQUIRES'} = $self->{'REQUIRES'} || [];
-			my $name=$1;
-			my $rem=$2;
+			my $name=$2;
+			my $rem=$3;
 			$rem=~ s/^[^\#]*\#*//;
-			push @{$self->{'REQUIRES'}},{'name'=>$name,'desc'=>$rem};
+			unshift @{$self->{'REQUIRES'}},{'name'=>$name,'desc'=>$rem};
 		}
 
 
-		if (($line=~ m/^\s*use base +([^\; ]+)[\;](.*)/) ||
+		if (($line=~ m/^\s*(use|require) base +([^\; ]+)[\;](.*)/) ||
 			($line=~ m/^\s*our +\@ISA +([^\; ]+)[\;](.*)/)){
 			$self->{'INHERITS_FROM'} = $self->{'INHERITS_FROM'} || [];
-			my $name=$1;
-			my $rem=$2;
+			my $name=$2;
+			my $rem=$3;
 			$name=~ s/qw\(//g;
 			$name=~ s/[\)\']//g;
 			my @n=split(/ +/,$name);
 			foreach my $n (@n){
-				push @{$self->{'INHERITS_FROM'}},{'name'=>$n} if $n;	
+				unshift @{$self->{'INHERITS_FROM'}},{'name'=>$n} if $n;	
 			}
 		}
 		
@@ -1905,9 +1906,10 @@ example LICENSE is allways near the end.
 
 Added some hacks to teach this tool also some doxygen parametes. For example:
 
- # @brief  kept as simple text
- # @param  text to be added
- # @return string with some text
+ # @brief   kept as simple text
+ # @param   text to be added
+ # @return  string with some text
+ # @!CUSTOM any custom text (the ! is the trigger for the custom code)
  sub foo{
    return "abc".shift;
  }
