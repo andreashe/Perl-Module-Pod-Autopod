@@ -172,6 +172,9 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #  # @param   text to be added
 #  # @return  string with some text
 #  # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+#  # @*MULTILINE_EXAMPLE func1 arg1 END
+#  #                     func2      END
+#  #                     func3 arg2 END *@
 #  sub foo{
 #    return "abc".shift;
 #  }
@@ -180,6 +183,9 @@ use Pod::Abstract::BuildNode qw(node nodes);
 # procudes:
 #
 #   my $string = $self->foo($text);
+#
+# Note, that while you can produce custom doxygen-style params, anything listed in the head (above the function)
+# will be printed as additional lines.
 #
 #
 # LICENSE
@@ -601,6 +607,7 @@ my $file=shift;
 	
 	
 	## reverse read
+	my @skipLines = ();
 	for (my $i=0;$i < scalar(@$arr); $i++){
 		my $p=scalar(@$arr)-1-$i;
 
@@ -708,10 +715,54 @@ my $file=shift;
 				$writeOut = 0;
 			}
 
+			# allow for multi-line on-the-fly parameters by using a @* opening and *@ closing
+			# we'll need this for multi-lines with formatting like (note, we're using \@ to prevent processing on this file)
+			# \@* function_name arg1 multiline splitparam
+			#                   nextcommand splitparam
+			#                   lastcommand
+			my $multiline_open = '@*';
+			my $multiline_close = '*@';
+			if ($line =~ /\s*#.*\Q$multiline_close\E$/) {
+				my $amalgamation = $line;
+				$amalgamation =~ s/\Q$multiline_close\E$//;
+				$amalgamation =~ s/\n//;
+				$amalgamation =~ s/^#/ /;
+
+				# because we're looking at the closing line first, we need to subtract from the current index
+				# to find the opening line
+				my $nextIndex = $p - 1;
+
+				while (0 < $nextIndex) {
+					my $nextLine = $arr->[$nextIndex];
+					push (@skipLines, $nextIndex);
+
+					my $line_without_markers = $nextLine;
+					$line_without_markers =~ s/^\#//;
+					$line_without_markers =~ s/\n$//;
+					if ($nextLine =~ m/^\s*#\s*\Q$multiline_open\E(.*?)\s+(.*)/) {
+						my $keyword = $1;
+						$keyword =~ s/\Q$multiline_open\E//;
+						$amalgamation = $keyword . ' ' . $2 . "\n" . $amalgamation;
+						last;
+					} else {
+						$amalgamation = $line_without_markers . "\n" . $amalgamation;
+					}
+					$nextIndex--;
+				}
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer($amalgamation);
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
+			}
 		}
 
 
 
+		my %skipLinesLookup;
+		@skipLinesLookup{@skipLines} = (1) x scalar(@skipLines);
+		if (defined($skipLinesLookup{$p})) {
+			$writeOut = 0;
+		}
 
 
 
@@ -738,8 +789,6 @@ my $file=shift;
 			$self->_setMethodAttr($self->_getMethodName(),'returnline',$self->_getMethodReturn());
 			$self->_setMethodReturn(undef);	
 		}
-
-
                 
                 
 		
@@ -1910,6 +1959,10 @@ Added some hacks to teach this tool also some doxygen parametes. For example:
  # @param   text to be added
  # @return  string with some text
  # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+ # @*MULTILINE_EXAMPLE func1 arg1 END
+ #                     func2      END
+ #                     func3 arg2 END *@
+
  sub foo{
    return "abc".shift;
  }
