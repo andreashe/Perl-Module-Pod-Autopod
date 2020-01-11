@@ -724,9 +724,9 @@ my $file=shift;
 			my $multiline_close = '*@';
 			if ($line =~ /\s*#.*\Q$multiline_close\E$/) {
 				my $amalgamation = $line;
-				$amalgamation =~ s/\Q$multiline_close\E$//;
+				$amalgamation =~ s/\s*\Q$multiline_close\E$//;
 				$amalgamation =~ s/\n//;
-				$amalgamation =~ s/^#/ /;
+				$amalgamation =~ s/^#/   /;
 
 				# because we're looking at the closing line first, we need to subtract from the current index
 				# to find the opening line
@@ -737,15 +737,16 @@ my $file=shift;
 					push (@skipLines, $nextIndex);
 
 					my $line_without_markers = $nextLine;
-					$line_without_markers =~ s/^\#//;
+					$line_without_markers =~ s/^\#/   /;
 					$line_without_markers =~ s/\n$//;
-					if ($nextLine =~ m/^\s*#\s*\Q$multiline_open\E(.*?)\s+(.*)/) {
-						my $keyword = $1;
+					if ($nextLine =~ m/^\s*#(\s*)\Q$multiline_open\E(.*?)\s+(.*)/) {
+						my $keyword = $2;
 						$keyword =~ s/\Q$multiline_open\E//;
-						$amalgamation = $keyword . ' ' . $2 . "\n" . $amalgamation;
+						$amalgamation = $keyword . ' ' . $3 . "\n\r" . $amalgamation;
+						$amalgamation =~ s/\n\r/\n\r$1   /gm; # add 3 spaces because @* and # all change alignment parameters
 						last;
 					} else {
-						$amalgamation = $line_without_markers . "\n" . $amalgamation;
+						$amalgamation = $line_without_markers . "\n\r" . $amalgamation;
 					}
 					$nextIndex--;
 				}
