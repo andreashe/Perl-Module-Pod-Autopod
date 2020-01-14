@@ -9,7 +9,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 
 # This Module is designed to generate pod documentation of a perl class by analysing its code.
 # The idea is to have something similar like javadoc. So it uses also comments written directly
-# obove the method definitions. It is designed to asumes a pm file which represents a class.
+# above the method definitions. It is designed to assumes a pm file which represents a class.
 # 
 # Of course it can not understand every kind of syntax, parameters, etc. But the plan is to improve
 # this library in the future to understand more and more automatically.
@@ -37,7 +37,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #  print $ap->getPod();
 #  $ap->writeFile('out.pod');
 #
-#  # asumes perl code in $mycoce and prints out the pod.
+#  # asumes perl code in $mycode and prints out the pod.
 #  # also writes to the file out.pod
 #
 #
@@ -61,8 +61,8 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # In further versions of autopod, here new features will appear.
 #
-# To define parameters and return values you can use a boundle of keywords.
-# So far parameters and return values can not realy be autodetected, so manual
+# To define parameters and return values you can use a bundle of keywords.
+# So far parameters and return values can not really be autodetected, so manual
 # way is necessary, but it is designed to type it rapidly.
 #
 #  sub foo{ # void ($text)
@@ -73,7 +73,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 #  $self->foo($text);
 #
-# The object "$self" is the default and automatially used when a constructor was found ("new")
+# The object "$self" is the default and automatically used when a constructor was found ("new")
 # or the class inherits with ISA or "use base".
 # You can change this by the parameter "selfstring" in the autopod constructor.
 #
@@ -83,7 +83,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #	  ...
 #  }
 #  
-# That procudes the same output! It means the dollar sign of the first example is a symbol which means "scalar".
+# That produces the same output! It means the dollar sign of the first example is a symbol which means "scalar".
 #
 #  sub foo{ # ($)
 #	  ...
@@ -93,7 +93,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 #  $self->foo($scalar);
 #
-# As you see, that was the quickest way to write the definition. The keywork "void" is default.
+# As you see, that was the quickest way to write the definition. The keyword "void" is default.
 #
 # The following keywords or characters are allowed:
 #
@@ -141,7 +141,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # The second "scalar" above is without a "$", that is no mistake, both works.
 # 
-# There is also a way to expain that a value A OR B is expected. See here:
+# There is also a way to explain that a value A OR B is expected. See here:
 #
 #  sub foo{# $lista|\$refb (\@list|$text,$flag)
 #  ...
@@ -155,7 +155,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 # you that is expected.
 #
 #
-# In the First Part obove all method descriptions, you can add general informations, which are
+# In the First Part above all method descriptions, you can add general informations, which are
 # per default displayed under the head item "DESCRIPTION". But also own items can be used by
 # underlining a text with "=" chars like:
 #
@@ -163,10 +163,10 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #  # =====
 #  # Read here howto do it.   
 #
-# Some of these title keywords are allways places in a special order, which you can not change. For
-# example LICENSE is allways near the end.
+# Some of these title keywords are always places in a special order, which you can not change. For
+# example LICENSE is always near the end.
 #
-# Added some hacks to teach this tool also some doxygen parametes. For example:
+# Added some hacks to teach this tool also some doxygen parameters. For example:
 #
 #  # @brief   kept as simple text
 #  # @param   text to be added
@@ -180,7 +180,7 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #  }
 #
 #
-# procudes:
+# produces:
 #
 #   my $string = $self->foo($text);
 #
@@ -392,7 +392,7 @@ my $file=shift or die "need filename";
 }
 
 
-## scans a directoy recoursively for pm files and may
+## scans a directory recursively for pm files and may
 ## generate pod of them.
 ##
 ## You can also set the flag updateonly to build new pod
@@ -402,7 +402,7 @@ my $file=shift or die "need filename";
 ## pm file wants to be pod'ed by autopod.
 ##
 ## The flag pod let will build a separate file. If poddir set,
-## the generated pod file will be saved to a deparate directory.
+## the generated pod file will be saved to a separate directory.
 ## With verbose it prints the list of written files.
 ##
 sub readDirectory{ # void ($directory,updateonly=>scalar,pod=>scalar,verbose=>scalar)
@@ -416,7 +416,7 @@ my $poddir=$v->{'poddir'};
 my $border=$self->getBorderString();
 
 
-	my @dir = $self->_getPodFilesRecoursive($directory);
+	my @dir = $self->_getPodFilesRecursive($directory);
 
 
 	foreach my $filein (@dir){
@@ -459,13 +459,13 @@ my $border=$self->getBorderString();
 
 
 
-sub _getPodFilesRecoursive{
+sub _getPodFilesRecursive{
 my $self=shift;
 my $path=shift;
 my %para=@_;
 my @files;
 
-	@files=$self->_getFilesRecoursiveAll($path);
+	@files=$self->_getFilesRecursiveAll($path);
 	$self->_filterFileArray(\@files,ext=>'pm',path=>$path);
 	@files=sort @files;
 
@@ -473,7 +473,7 @@ return wantarray ? @files : \@files;
 }
 
 
-sub _getFilesRecoursiveAll{
+sub _getFilesRecursiveAll{
 my $self=shift;
 my $path=shift;
 my %para;
@@ -488,7 +488,7 @@ my @fm;
 
 	foreach my $d (@f){
 		if (-d $d){
-		push @fm,$self->_getFilesRecoursiveAll($d);
+		push @fm,$self->_getFilesRecursiveAll($d);
 		}
 	}
 	push @f,@fm;
@@ -1332,7 +1332,7 @@ return  \@rettype;
 
 
 
-# Builds the pod. Called automatically when imporing a perl code.
+# Builds the pod. Called automatically when importing a perl code.
 sub buildPod{
 my $self=shift;
 my $attr = $self->{'METHOD_ATTR'};
@@ -1551,7 +1551,7 @@ my $attr = $self->{'METHOD_ATTR'};
 
 	$node->push( node->head1("METHODS") );
 
-	## sort alphabeticaly
+	## sort alphabetically
 	my @methods = keys %$attr;
 	@methods = sort @methods;
 
@@ -2036,7 +2036,7 @@ Returns the pod formated text.s
 
  $self->readDirectory($directory, updateonly => $scalar, pod => $scalar, verbose => $scalar);
 
-scans a directoy recoursively for pm files and may
+scans a directoy recursively for pm files and may
 generate pod of them.
 
 You can also set the flag updateonly to build new pod
