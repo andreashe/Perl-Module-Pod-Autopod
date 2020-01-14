@@ -168,9 +168,13 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # Added some hacks to teach this tool also some doxygen parametes. For example:
 #
-#  # @brief  kept as simple text
-#  # @param  text to be added
-#  # @return string with some text
+#  # @brief   kept as simple text
+#  # @param   text to be added
+#  # @return  string with some text
+#  # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+#  # @*MULTILINE_EXAMPLE func1 arg1 END
+#  #                     func2      END
+#  #                     func3 arg2 END *@
 #  sub foo{
 #    return "abc".shift;
 #  }
@@ -179,6 +183,9 @@ use Pod::Abstract::BuildNode qw(node nodes);
 # procudes:
 #
 #   my $string = $self->foo($text);
+#
+# Note, that while you can produce custom doxygen-style params, anything listed in the head (above the function)
+# will be printed as additional lines.
 #
 #
 # LICENSE
@@ -600,6 +607,7 @@ my $file=shift;
 	
 	
 	## reverse read
+	my @skipLines = ();
 	for (my $i=0;$i < scalar(@$arr); $i++){
 		my $p=scalar(@$arr)-1-$i;
 
@@ -707,10 +715,55 @@ my $file=shift;
 				$writeOut = 0;
 			}
 
+			# allow for multi-line on-the-fly parameters by using a @* opening and *@ closing
+			# we'll need this for multi-lines with formatting like (note, we're using \@ to prevent processing on this file)
+			# \@* function_name arg1 multiline splitparam
+			#                   nextcommand splitparam
+			#                   lastcommand
+			my $multiline_open = '@*';
+			my $multiline_close = '*@';
+			if ($line =~ /\s*#.*\Q$multiline_close\E$/) {
+				my $amalgamation = $line;
+				$amalgamation =~ s/\s*\Q$multiline_close\E$//;
+				$amalgamation =~ s/\n//;
+				$amalgamation =~ s/^#/   /;
+
+				# because we're looking at the closing line first, we need to subtract from the current index
+				# to find the opening line
+				my $nextIndex = $p - 1;
+
+				while (0 < $nextIndex) {
+					my $nextLine = $arr->[$nextIndex];
+					push (@skipLines, $nextIndex);
+
+					my $line_without_markers = $nextLine;
+					$line_without_markers =~ s/^\#/   /;
+					$line_without_markers =~ s/\n$//;
+					if ($nextLine =~ m/^\s*#(\s*)\Q$multiline_open\E(.*?)\s+(.*)/) {
+						my $keyword = $2;
+						$keyword =~ s/\Q$multiline_open\E//;
+						$amalgamation = $keyword . ' ' . $3 . "\n\r" . $amalgamation;
+						$amalgamation =~ s/\n\r/\n\r$1   /gm; # add 3 spaces because @* and # all change alignment parameters
+						last;
+					} else {
+						$amalgamation = $line_without_markers . "\n\r" . $amalgamation;
+					}
+					$nextIndex--;
+				}
+				$self->_addLineToHeadBuffer("");
+				$self->_addLineToHeadBuffer($amalgamation);
+				$self->_addLineToHeadBuffer("");
+				$writeOut = 0;
+			}
 		}
 
 
 
+		my %skipLinesLookup;
+		@skipLinesLookup{@skipLines} = (1) x scalar(@skipLines);
+		if (defined($skipLinesLookup{$p})) {
+			$writeOut = 0;
+		}
 
 
 
@@ -737,8 +790,6 @@ my $file=shift;
 			$self->_setMethodAttr($self->_getMethodName(),'returnline',$self->_getMethodReturn());
 			$self->_setMethodReturn(undef);	
 		}
-
-
                 
                 
 		
@@ -756,25 +807,25 @@ my $file=shift;
 			$self->{'PKGNAME_DESC'}=~ s/^\s*\#*//g;
 		}
 
-		if ($line=~ m/^\s*use +([^\; ]+)[\; ](.*)/){
+		if ($line=~ m/^\s*(use|require) +([^\; ]+)[\; ](.*)/){
 			$self->{'REQUIRES'} = $self->{'REQUIRES'} || [];
-			my $name=$1;
-			my $rem=$2;
+			my $name=$2;
+			my $rem=$3;
 			$rem=~ s/^[^\#]*\#*//;
-			push @{$self->{'REQUIRES'}},{'name'=>$name,'desc'=>$rem};
+			unshift @{$self->{'REQUIRES'}},{'name'=>$name,'desc'=>$rem};
 		}
 
 
-		if (($line=~ m/^\s*use base +([^\; ]+)[\;](.*)/) ||
+		if (($line=~ m/^\s*(use|require) base +([^\; ]+)[\;](.*)/) ||
 			($line=~ m/^\s*our +\@ISA +([^\; ]+)[\;](.*)/)){
 			$self->{'INHERITS_FROM'} = $self->{'INHERITS_FROM'} || [];
-			my $name=$1;
-			my $rem=$2;
+			my $name=$2;
+			my $rem=$3;
 			$name=~ s/qw\(//g;
 			$name=~ s/[\)\']//g;
 			my @n=split(/ +/,$name);
 			foreach my $n (@n){
-				push @{$self->{'INHERITS_FROM'}},{'name'=>$n} if $n;	
+				unshift @{$self->{'INHERITS_FROM'}},{'name'=>$n} if $n;	
 			}
 		}
 		
@@ -1905,9 +1956,14 @@ example LICENSE is allways near the end.
 
 Added some hacks to teach this tool also some doxygen parametes. For example:
 
- # @brief  kept as simple text
- # @param  text to be added
- # @return string with some text
+ # @brief   kept as simple text
+ # @param   text to be added
+ # @return  string with some text
+ # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+ # @*MULTILINE_EXAMPLE func1 arg1 END
+ #                     func2      END
+ #                     func3 arg2 END *@
+
  sub foo{
    return "abc".shift;
  }
