@@ -1,0 +1,7 @@
+TODO
+====
+
+1. Add the ability to add XS methods to the methods area
+2. Clean up comments
+3. Create a perltidy file
+4. Comment the script

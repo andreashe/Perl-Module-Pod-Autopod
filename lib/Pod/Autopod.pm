@@ -168,10 +168,11 @@ use Pod::Abstract::BuildNode qw(node nodes);
 #
 # Added some hacks to teach this tool also some doxygen parameters. For example:
 #
-#  # @brief   kept as simple text
-#  # @param   text to be added
-#  # @return  string with some text
-#  # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+#  # @brief    kept as simple text
+#  # @param    text to be added
+#  # @return   string with some text
+#  # @returns  string with some text
+#  # @!CUSTOM  any custom text (the ! is the trigger for the custom code)
 #  # @*MULTILINE_EXAMPLE func1 arg1 END
 #  #                     func2      END
 #  #                     func3 arg2 END *@
@@ -665,7 +666,7 @@ my $file=shift;
 		# a hack for doxy gen, which rewrites the methodline
 		# doxy @return
 		if ($self->{'STATE'} eq 'head'){
-			if ($line=~ m/^\s*#\s*\@return\s+(.*)/){
+			if ($line=~ m/^\s*#\s*\@return(s{0,1})\s+(.*)/){
 				my $retline = $1; # also containts description, which is not used at the moment
 				$retline =~ m/([^\s]+)(.*)/;
 				my $retval = $1;
@@ -1956,10 +1957,11 @@ example LICENSE is allways near the end.
 
 Added some hacks to teach this tool also some doxygen parametes. For example:
 
- # @brief   kept as simple text
- # @param   text to be added
- # @return  string with some text
- # @!CUSTOM any custom text (the ! is the trigger for the custom code)
+ # @brief    kept as simple text
+ # @param    text to be added
+ # @return   string with some text
+ # @returns  string with some text
+ # @!CUSTOM  any custom text (the ! is the trigger for the custom code)
  # @*MULTILINE_EXAMPLE func1 arg1 END
  #                     func2      END
  #                     func3 arg2 END *@
